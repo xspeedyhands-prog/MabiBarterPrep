@@ -20,63 +20,161 @@
             text-decoration: line-through;
             opacity: 0.5;
         }
+        /* Custom scrollbar for better aesthetics */
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 8px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: #1f2937; /* gray-800 */
+            border-radius: 10px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: #4f46e5; /* indigo-600 */
+            border-radius: 10px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+            background: #4338ca; /* indigo-700 */
+        }
     </style>
 </head>
-<body class="bg-gray-900 text-gray-100 flex items-center justify-center min-h-screen p-4">
+<body class="bg-gray-900 text-gray-100">
 
-    <div class="w-full max-w-md bg-gray-800 rounded-2xl shadow-lg p-6 md:p-8">
-        <header class="mb-6 text-center">
-            <h1 class="text-2xl md:text-3xl font-bold text-white">Mabinogi Bartering Prep List</h1>
-            <p class="text-gray-400 mt-2">Materials for Volcano, Calida, Karu Forest, & Oasis</p>
+    <div class="container mx-auto p-4 md:p-8">
+        <header class="mb-8 bg-gray-800 rounded-2xl shadow-lg p-6">
+            <div class="text-center mb-6">
+                <h1 class="text-2xl md:text-3xl font-bold text-white">Mabinogi Bartering Prep List</h1>
+                <p class="text-gray-400 mt-2">Materials for Volcano, Calida, Karu Forest, & Oasis</p>
+            </div>
+            
+            <div class="max-w-xl mx-auto space-y-4">
+                <div class="flex justify-between items-center text-sm font-semibold text-gray-400 px-1">
+                    <span>Total Completed</span>
+                    <span id="progress-text">0/0</span>
+                </div>
+                <div class="w-full bg-gray-700 rounded-full h-2.5">
+                    <div id="progress-bar" class="bg-indigo-600 h-2.5 rounded-full transition-all duration-300" style="width: 0%"></div>
+                </div>
+                 <div class="flex justify-center pt-2">
+                    <button id="reset-button" class="bg-red-600 hover:bg-red-700 text-white font-semibold py-2 px-5 rounded-lg transition-colors duration-300 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-800 focus:ring-red-500">
+                        Reset List
+                    </button>
+                </div>
+            </div>
         </header>
 
-        <div class="space-y-1">
-            <div class="flex justify-between items-center text-sm font-semibold text-gray-400 px-4">
-                <span>Completed</span>
-                <span id="progress-text">0/0</span>
-            </div>
-            <div class="w-full bg-gray-700 rounded-full h-2.5">
-                <div id="progress-bar" class="bg-indigo-600 h-2.5 rounded-full transition-all duration-300" style="width: 0%"></div>
-            </div>
-        </div>
-
-        <ul id="material-list" class="mt-6 space-y-3 max-h-[50vh] overflow-y-auto pr-2">
-            </ul>
-        
-        <div class="mt-8 flex justify-center">
-            <button id="reset-button" class="bg-red-600 hover:bg-red-700 text-white font-semibold py-2 px-5 rounded-lg transition-colors duration-300 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-800 focus:ring-red-500">
-                Reset List
-            </button>
-        </div>
+        <main id="material-list-container" class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6">
+            </main>
     </div>
 
     <script>
         document.addEventListener('DOMContentLoaded', () => {
             const locations = [
-                {
-                    name: 'Volcano',
-                    materials: [
-                        { name: 'Mythril Plate', quantity: 30 }, { name: 'Barley Flour', quantity: 45 }, { name: 'Marionette 500 Pot', quantity: 30 }, { name: 'Gold Plate', quantity: 50 }, { name: 'Glittering Paper', quantity: 40 }, { name: 'Finest Fabric', quantity: 40 }, { name: 'HP 500 Pot', quantity: 16 }, { name: 'Mutant', quantity: 3 }, { name: 'Harmonious Cosmos Perfume', quantity: 6 }, { name: 'Special Firewood', quantity: 9 }
-                    ]
-                },
-                {
-                    name: 'Calida',
-                    materials: [
-                        { name: 'Energy Converter', quantity: 15 }, { name: 'Purified Rabbit Foot', quantity: 15 }, { name: 'Sundew', quantity: 30 }, { name: 'Finest Vanilla Candle', quantity: 20 }, { name: 'Artificial Turf', quantity: 8 }, { name: 'Emerald Fuse', quantity: 8 }, { name: 'Fine Leather Strap', quantity: 40 }, { name: 'Large Mythril Nail', quantity: 9 }, { name: 'Poison Wyvern Ballista Bolt', quantity: 9 }, { name: 'Finest Firewood', quantity: 9 }
-                    ]
-                },
-                {
-                    name: 'Karu Forest',
-                    materials: [
-                        { name: 'Magic Parchment', quantity: 15 }, { name: 'Tough String', quantity: 30 }, { name: 'Hillwen Alloy', quantity: 20 }, { name: 'Wheat Flour', quantity: 50 }, { name: 'Spin Gear', quantity: 8 }, { name: 'Average Firewood', quantity: 40 }, { name: 'Fine Silk', quantity: 32 }, { name: 'Energy Amplifier', quantity: 6 }, { name: 'Sturdy Loop', quantity: 3 }, { name: 'Magic Quill Pen', quantity: 15 }
-                    ]
-                },
-                {
-                    name: 'Oasis',
-                    materials: [
-                        { name: 'Cotton Cushion', quantity: 15 }, { name: 'Finest Silk', quantity: 30 }, { name: 'Finest Leather Strap', quantity: 10 }, { name: 'Tough Thread', quantity: 30 }, { name: 'Spirit Liqueur', quantity: 8 }, { name: 'Silver Plate', quantity: 16 }, { name: 'Fine Fabric', quantity: 32 }, { name: 'Pet Playset', quantity: 3 }, { name: 'Hay Bale', quantity: 9 }, { name: 'Enchanted Firewood', quantity: 15 }
-                    ]
-                }
+            {
+                name: 'Volcano',
+                materials: [
+                // Smithing Talent
+                { name: 'Copper Plate', quantity: 50 },
+                { name: 'Gold Plate', quantity: 50 },
+                { name: 'Mythril Plate', quantity: 30 },
+
+                // Potion Making Talent
+                { name: 'HP 500 Pot', quantity: 16 },
+                { name: 'Marionette 500 Pot', quantity: 30 },
+
+                // Tailoring Talent
+                { name: 'Finest Fabric', quantity: 40 },
+
+                // Cooking Talent
+                { name: 'Barley Flour', quantity: 45 },
+
+                // Carpentry Talent
+                { name: 'Special Firewood', quantity: 9 },
+                { name: 'Glittering Paper', quantity: 40 },
+
+                // Pet Taming Talent
+                { name: 'Mysterious Herb Powder', quantity: 75 },
+                { name: 'Mutant', quantity: 3 },
+                { name: 'Harmonious Cosmos Perfume', quantity: 6 }
+                ]
+            },
+            {
+                name: 'Calida',
+                materials: [
+                // Smithing Talent
+                { name: 'Large Mythril Nail', quantity: 9 },
+
+                // Potion Making Talent
+                { name: 'MP 500 Pot', quantity: 25 },
+
+                // Tailoring Talent
+                { name: 'Fine Leather Strap', quantity: 40 },
+
+                // Carpentry Talent
+                { name: 'Fine Firewood', quantity: 50 },
+                { name: 'Finest Firewood', quantity: 9 },
+                { name: 'Finest Vanilla Scented Candle', quantity: 20 },
+                { name: 'Artificial Turf', quantity: 8 },
+                { name: 'Poison Tip Wyvern Ballista Bolt', quantity: 9 },
+
+                // Pet Taming Talent
+                { name: 'Energy Converter', quantity: 15 },
+                { name: 'Purified Rabbit Foot', quantity: 15 },
+                { name: 'Sundew', quantity: 30 },
+                { name: 'Emerald Fuse', quantity: 8 }
+                ]
+            },
+            {
+                name: 'Karu Forest',
+                materials: [
+                // Tailoring Talent
+                { name: 'Tough String', quantity: 30 },
+                { name: 'Fine Silk', quantity: 32 },
+                { name: 'Sturdy Loop', quantity: 3 },
+
+                // Cooking Talent
+                { name: 'Wheat Flour', quantity: 50 },
+                { name: 'Shrimp Taming Bait', quantity: 100 },
+
+                // Glyphwright Talent
+                { name: 'Magic Parchment', quantity: 15 },
+                { name: 'Magic Quill Pen', quantity: 15 },
+
+                // Carpentry Talent
+                { name: 'Average Firewood', quantity: 40 },
+
+                // Pet Taming Talent
+                { name: 'Hillwen Alloy', quantity: 20 },
+                { name: 'Spin Gear', quantity: 8 },
+                { name: 'Energy Amplifier', quantity: 6 },
+                { name: 'Shyllien', quantity: 50 }
+                ]
+            },
+            {
+                name: 'Oasis',
+                materials: [
+                // Smithing Talent
+                { name: 'Silver Plate', quantity: 16 },
+
+                // Potion Making Talent
+                { name: 'Stamina 500 Pot', quantity: 75 },
+                { name: 'Spirit Liqueur', quantity: 8 },
+
+                // Tailoring Talent
+                { name: 'Braid', quantity: 50 },
+                { name: 'Finest Silk', quantity: 30 },
+                { name: 'Finest Leather Strap', quantity: 10 },
+                { name: 'Tough Thread', quantity: 30 },
+                { name: 'Fine Fabric', quantity: 32 },
+
+                // Carpentry Talent
+                { name: 'Cotton Cushion', quantity: 15 },
+                { name: 'Hay Bale', quantity: 9 },
+
+                // Pet Taming Talent
+                { name: 'Pet Playset', quantity: 3 },
+                { name: 'Enchanted Firewood', quantity: 15 }
+                ]
+            }
             ];
             
             // --- ALL CRAFTING RECIPES ---
@@ -113,7 +211,7 @@
                 'Special Firewood': [{ name: 'Finest Firewood', quantity: 1 }, { name: 'Purified Enhancer', quantity: 1 }]
             };
 
-            const materialList = document.getElementById('material-list');
+            const materialListContainer = document.getElementById('material-list-container');
             const progressBar = document.getElementById('progress-bar');
             const progressText = document.getElementById('progress-text');
             const resetButton = document.getElementById('reset-button');
@@ -133,54 +231,55 @@
                 }
             }
             
-            // This function breaks down a crafted item into its true base materials.
             function getBaseMaterials(materialName, quantity) {
                 const aggregatedMaterials = {};
-                
-                // Check if the current material is a crafted item
                 if (craftingRecipes[materialName]) {
-                    // If it is, go through its ingredients
                     craftingRecipes[materialName].forEach(ingredient => {
-                        // Recursively get the base materials for each ingredient
                         const baseIngredients = getBaseMaterials(ingredient.name, ingredient.quantity * quantity);
-                        // Add the results to our aggregated list
                         for (const baseName in baseIngredients) {
                             aggregatedMaterials[baseName] = (aggregatedMaterials[baseName] || 0) + baseIngredients[baseName];
                         }
                     });
                 } else {
-                    // If it's not a crafted item, it's a base material.
                     aggregatedMaterials[materialName] = quantity;
                 }
-                
                 return aggregatedMaterials;
             }
 
             function updateProgress() {
-                const currentlyVisibleItems = Array.from(materialList.querySelectorAll('li[data-name]'));
-                const visibleItemNames = currentlyVisibleItems.map(li => li.dataset.name);
-                const visibleCompleted = checkedItems.filter(item => visibleItemNames.includes(item)).length;
-                const totalVisible = visibleItemNames.length;
-                const percentage = totalVisible > 0 ? (visibleCompleted / totalVisible) * 100 : 0;
+                // Query all individual items across all cards in the container
+                const allItems = Array.from(materialListContainer.querySelectorAll('li[data-name]'));
+                const totalItems = allItems.length;
+                const completedItems = checkedItems.length;
+                const percentage = totalItems > 0 ? (completedItems / totalItems) * 100 : 0;
                 
                 progressBar.style.width = `${percentage}%`;
-                progressText.textContent = `${visibleCompleted}/${totalVisible}`;
+                progressText.textContent = `${completedItems}/${totalItems}`;
             }
 
             function renderList() {
-                materialList.innerHTML = ''; 
+                materialListContainer.innerHTML = ''; 
                 
                 locations.forEach(location => {
-                    const header = document.createElement('li');
-                    header.classList.add('pt-4', 'pb-2');
-                    header.innerHTML = `<h2 class="text-xl font-bold text-indigo-400">${location.name}</h2>`;
-                    materialList.appendChild(header);
+                    // Create a card for each location
+                    const locationCard = document.createElement('div');
+                    locationCard.className = 'bg-gray-800 rounded-2xl shadow-lg p-6 flex flex-col';
 
+                    // Create the header for the card
+                    const header = document.createElement('h2');
+                    header.className = 'text-xl font-bold text-indigo-400 mb-4 text-center';
+                    header.textContent = location.name;
+                    locationCard.appendChild(header);
+
+                    // Create the list for the materials
+                    const ul = document.createElement('ul');
+                    ul.className = 'space-y-3 overflow-y-auto custom-scrollbar flex-grow';
+                    
                     location.materials.forEach(material => {
                         const isChecked = checkedItems.includes(material.name);
                         
                         const li = document.createElement('li');
-                        li.classList.add('bg-gray-700/50', 'rounded-lg', 'p-4', 'flex', 'items-center', 'cursor-pointer', 'transition-all', 'duration-200', 'relative', 'group');
+                        li.className = 'bg-gray-700/50 rounded-lg p-4 flex items-center cursor-pointer transition-all duration-200 relative group';
                         if (isChecked) li.classList.add('done');
                         li.dataset.name = material.name;
 
@@ -188,10 +287,7 @@
                         const hasRecipe = craftingRecipes[material.name];
 
                         if (hasRecipe) {
-                            // Use the new recursive function to get the final list of base materials
                             const finalBaseMaterials = getBaseMaterials(material.name, material.quantity);
-
-                            // Create the HTML for the tooltip from the final list
                             const ingredientsHTML = Object.entries(finalBaseMaterials).map(([name, totalNeeded]) => {
                                 return `<div class="flex justify-between text-sm">
                                             <span>${name}</span>
@@ -244,9 +340,11 @@
                         });
 
                         checkbox.addEventListener('change', toggleCheck);
-
-                        materialList.appendChild(li);
+                        ul.appendChild(li);
                     });
+
+                    locationCard.appendChild(ul);
+                    materialListContainer.appendChild(locationCard);
                 });
                 updateProgress();
             }
