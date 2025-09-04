@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mabinogi Bartering Prep List</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            -webkit-tap-highlight-color: transparent;
+        }
+        .custom-checkbox:checked {
+            background-image: url("data:image/svg+xml,%3csvg viewBox='0 0 16 16' fill='white' xmlns='http://www.w3.org/2000/svg'%3e%3cpath d='M12.207 4.793a1 1 0 010 1.414l-5 5a1 1 0 01-1.414 0l-2-2a1 1 0 011.414-1.414L6.5 9.086l4.293-4.293a1 1 0 011.414 0z'/%3e%3c/svg%3e");
+            border-color: #4f46e5;
+            background-color: #4f46e5;
+        }
+        .done .font-medium {
+            text-decoration: line-through;
+            opacity: 0.5;
+        }
+    </style>
+</head>
+<body class="bg-gray-900 text-gray-100 flex items-center justify-center min-h-screen p-4">
+
+    <div class="w-full max-w-md bg-gray-800 rounded-2xl shadow-lg p-6 md:p-8">
+        <header class="mb-6 text-center">
+            <h1 class="text-2xl md:text-3xl font-bold text-white">Mabinogi Bartering Prep List</h1>
+            <p class="text-gray-400 mt-2">Materials for Volcano, Calida, Karu Forest, & Oasis</p>
+        </header>
+
+        <div class="space-y-1">
+            <div class="flex justify-between items-center text-sm font-semibold text-gray-400 px-4">
+                <span>Completed</span>
+                <span id="progress-text">0/0</span>
+            </div>
+            <div class="w-full bg-gray-700 rounded-full h-2.5">
+                <div id="progress-bar" class="bg-indigo-600 h-2.5 rounded-full transition-all duration-300" style="width: 0%"></div>
+            </div>
+        </div>
+
+        <ul id="material-list" class="mt-6 space-y-3 max-h-[50vh] overflow-y-auto pr-2">
+            </ul>
+        
+        <div class="mt-8 flex justify-center">
+            <button id="reset-button" class="bg-red-600 hover:bg-red-700 text-white font-semibold py-2 px-5 rounded-lg transition-colors duration-300 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-800 focus:ring-red-500">
+                Reset List
+            </button>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const locations = [
+                {
+                    name: 'Volcano',
+                    materials: [
+                        { name: 'Mythril Plate', quantity: 30 }, { name: 'Barley Flour', quantity: 45 }, { name: 'Marionette 500 Pot', quantity: 30 }, { name: 'Gold Plate', quantity: 50 }, { name: 'Glittering Paper', quantity: 40 }, { name: 'Finest Fabric', quantity: 40 }, { name: 'HP 500 Pot', quantity: 16 }, { name: 'Mutant', quantity: 3 }, { name: 'Harmonious Cosmos Perfume', quantity: 6 }, { name: 'Special Firewood', quantity: 9 }
+                    ]
+                },
+                {
+                    name: 'Calida',
+                    materials: [
+                        { name: 'Energy Converter', quantity: 15 }, { name: 'Purified Rabbit Foot', quantity: 15 }, { name: 'Sundew', quantity: 30 }, { name: 'Finest Vanilla Candle', quantity: 20 }, { name: 'Artificial Turf', quantity: 8 }, { name: 'Emerald Fuse', quantity: 8 }, { name: 'Fine Leather Strap', quantity: 40 }, { name: 'Large Mythril Nail', quantity: 9 }, { name: 'Poison Wyvern Ballista Bolt', quantity: 9 }, { name: 'Finest Firewood', quantity: 9 }
+                    ]
+                },
+                {
+                    name: 'Karu Forest',
+                    materials: [
+                        { name: 'Magic Parchment', quantity: 15 }, { name: 'Tough String', quantity: 30 }, { name: 'Hillwen Alloy', quantity: 20 }, { name: 'Wheat Flour', quantity: 50 }, { name: 'Spin Gear', quantity: 8 }, { name: 'Average Firewood', quantity: 40 }, { name: 'Fine Silk', quantity: 32 }, { name: 'Energy Amplifier', quantity: 6 }, { name: 'Sturdy Loop', quantity: 3 }, { name: 'Magic Quill Pen', quantity: 15 }
+                    ]
+                },
+                {
+                    name: 'Oasis',
+                    materials: [
+                        { name: 'Cotton Cushion', quantity: 15 }, { name: 'Finest Silk', quantity: 30 }, { name: 'Finest Leather Strap', quantity: 10 }, { name: 'Tough Thread', quantity: 30 }, { name: 'Spirit Liqueur', quantity: 8 }, { name: 'Silver Plate', quantity: 16 }, { name: 'Fine Fabric', quantity: 32 }, { name: 'Pet Playset', quantity: 3 }, { name: 'Hay Bale', quantity: 9 }, { name: 'Enchanted Firewood', quantity: 15 }
+                    ]
+                }
+            ];
+            
+            // --- ALL CRAFTING RECIPES ---
+            const craftingRecipes = {
+                'Magic Parchment': [{ name: 'Soft Parchment', quantity: 1 }, { name: 'Mana Herb', quantity: 10 }, { name: 'Sunlight Herb', quantity: 10 }],
+                'Tough String': [{ name: 'Thick Thread Ball', quantity: 5 }],
+                'Hillwen Alloy': [{ name: 'Soft Hillwen Ore Fragment', quantity: 15 }],
+                'Wheat Flour': [{ name: 'Wheat', quantity: 10 }],
+                'Spin Gear': [{ name: 'Hillwen', quantity: 2 }, { name: 'Hexagonal Bolt', quantity: 5 }, { name: 'Hexagonal Nut', quantity: 5 }],
+                'Fine Silk': [{ name: 'Thin Thread Ball', quantity: 5 }],
+                'Energy Amplifier': [{ name: 'Emerald Core', quantity: 3 }, { name: 'Energy Converter', quantity: 3 }],
+                'Sturdy Loop': [{ name: 'Braid', quantity: 1 }, { name: 'Infernal Blade Fragment', quantity: 1 }],
+                'Magic Quill Pen': [{ name: 'Vital Feather', quantity: 1 }, { name: 'Mana Herb', quantity: 10 }, { name: 'Gold Herb', quantity: 10 }],
+                'Braid': [{ name: 'Thick Thread Ball', quantity: 1 }, { name: 'Thin Thread Ball', quantity: 1 }],
+                'Cotton Cushion': [{ name: 'Fine Wool', quantity: 20 }, { name: 'Thin Thread Ball', quantity: 5 }],
+                'Finest Silk': [{ name: 'Thin Thread Ball', quantity: 6 }],
+                'Fine Fabric': [{ name: 'Thick Thread Ball', quantity: 5 }],
+                'Hay Bale': [{ name: 'Wheat Chaff', quantity: 20 }, { name: 'Finest Leather Strap', quantity: 1 }],
+                'Enchanted Firewood': [{ name: 'Shyllien', quantity: 1 }, { name: 'Hillwen', quantity: 1 }, { name: 'Average Firewood', quantity: 1 }],
+                'Energy Converter': [{ name: 'Hillwen', quantity: 1 }, { name: 'Shyllien', quantity: 1 }],
+                'Purified Rabbit Foot': [{ name: 'Rabbit Foot', quantity: 5 }, { name: 'Mysterious Herb Powder', quantity: 3 }, { name: 'Intact Shyllien', quantity: 5 }],
+                'Sundew': [{ name: 'Shyllien', quantity: 1 }, { name: 'Mutant Plant Mucilage', quantity: 1 }],
+                'Artificial Turf': [{ name: 'Fresh Grass', quantity: 20 }, { name: 'Bundle of Flowers', quantity: 5 }],
+                'Emerald Fuse': [{ name: 'Emerald Core', quantity: 1 }],
+                'Large Mythril Nail': [{ name: 'Mythril Ingot', quantity: 20 }],
+                'Poison Wyvern Ballista Bolt': [{ name: 'Firewood', quantity: 1 }, { name: 'Wyvern Claw', quantity: 1 }, { name: 'Poison Potion', quantity: 1 }],
+                'Finest Firewood': [{ name: 'Fine Firewood', quantity: 3 }],
+                'Fine Firewood': [{ name: 'Average Firewood', quantity: 3 }],
+                'Mysterious Herb Powder': [{ name: 'Bloody Herb', quantity: 1 }, { name: 'Mana Herb', quantity: 1 }, { name: 'Poison Herb', quantity: 1 }],
+                'Barley Flour': [{ name: 'Barley', quantity: 10 }],
+                'Finest Fabric': [{ name: 'Thick Thread Ball', quantity: 6 }],
+                'Mutant': [{ name: 'Mutant Rabbit Foot', quantity: 10 }, { name: 'Mutant Plant Mucilage', quantity: 5 }, { name: 'Sasquatch Heart', quantity: 3 }],
+                'Harmonious Cosmos Perfume': [{ name: 'Empty Bottle', quantity: 1 }, { name: 'Magic Powder', quantity: 10 }, { name: 'Base Herb', quantity: 10 }, { name: 'Cosmos Extract', quantity: 1 }],
+                'Special Firewood': [{ name: 'Finest Firewood', quantity: 1 }, { name: 'Purified Enhancer', quantity: 1 }]
+            };
+
+            const materialList = document.getElementById('material-list');
+            const progressBar = document.getElementById('progress-bar');
+            const progressText = document.getElementById('progress-text');
+            const resetButton = document.getElementById('reset-button');
+
+            const STORAGE_KEY = 'mabinogiBarteringList_v5';
+            let checkedItems = [];
+
+            function saveState() {
+                localStorage.setItem(STORAGE_KEY, JSON.stringify({checkedItems}));
+            }
+
+            function loadState() {
+                const savedState = localStorage.getItem(STORAGE_KEY);
+                if (savedState) {
+                    const data = JSON.parse(savedState);
+                    checkedItems = data.checkedItems || [];
+                }
+            }
+            
+            // This function breaks down a crafted item into its true base materials.
+            function getBaseMaterials(materialName, quantity) {
+                const aggregatedMaterials = {};
+                
+                // Check if the current material is a crafted item
+                if (craftingRecipes[materialName]) {
+                    // If it is, go through its ingredients
+                    craftingRecipes[materialName].forEach(ingredient => {
+                        // Recursively get the base materials for each ingredient
+                        const baseIngredients = getBaseMaterials(ingredient.name, ingredient.quantity * quantity);
+                        // Add the results to our aggregated list
+                        for (const baseName in baseIngredients) {
+                            aggregatedMaterials[baseName] = (aggregatedMaterials[baseName] || 0) + baseIngredients[baseName];
+                        }
+                    });
+                } else {
+                    // If it's not a crafted item, it's a base material.
+                    aggregatedMaterials[materialName] = quantity;
+                }
+                
+                return aggregatedMaterials;
+            }
+
+            function updateProgress() {
+                const currentlyVisibleItems = Array.from(materialList.querySelectorAll('li[data-name]'));
+                const visibleItemNames = currentlyVisibleItems.map(li => li.dataset.name);
+                const visibleCompleted = checkedItems.filter(item => visibleItemNames.includes(item)).length;
+                const totalVisible = visibleItemNames.length;
+                const percentage = totalVisible > 0 ? (visibleCompleted / totalVisible) * 100 : 0;
+                
+                progressBar.style.width = `${percentage}%`;
+                progressText.textContent = `${visibleCompleted}/${totalVisible}`;
+            }
+
+            function renderList() {
+                materialList.innerHTML = ''; 
+                
+                locations.forEach(location => {
+                    const header = document.createElement('li');
+                    header.classList.add('pt-4', 'pb-2');
+                    header.innerHTML = `<h2 class="text-xl font-bold text-indigo-400">${location.name}</h2>`;
+                    materialList.appendChild(header);
+
+                    location.materials.forEach(material => {
+                        const isChecked = checkedItems.includes(material.name);
+                        
+                        const li = document.createElement('li');
+                        li.classList.add('bg-gray-700/50', 'rounded-lg', 'p-4', 'flex', 'items-center', 'cursor-pointer', 'transition-all', 'duration-200', 'relative', 'group');
+                        if (isChecked) li.classList.add('done');
+                        li.dataset.name = material.name;
+
+                        let tooltipHTML = '';
+                        const hasRecipe = craftingRecipes[material.name];
+
+                        if (hasRecipe) {
+                            // Use the new recursive function to get the final list of base materials
+                            const finalBaseMaterials = getBaseMaterials(material.name, material.quantity);
+
+                            // Create the HTML for the tooltip from the final list
+                            const ingredientsHTML = Object.entries(finalBaseMaterials).map(([name, totalNeeded]) => {
+                                return `<div class="flex justify-between text-sm">
+                                            <span>${name}</span>
+                                            <span class="font-semibold text-indigo-300">${totalNeeded}</span>
+                                        </div>`;
+                            }).join('');
+
+                            tooltipHTML = `
+                                <div class="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-64 p-3 bg-gray-900 border border-gray-600 rounded-lg shadow-xl 
+                                            opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none z-10">
+                                    <h4 class="font-bold text-base text-white mb-2 text-center">Base Materials (Total)</h4>
+                                    <div class="space-y-1">${ingredientsHTML}</div>
+                                </div>
+                            `;
+                        }
+
+                        const infoIcon = hasRecipe ? 
+                            `<svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 inline-block ml-2 opacity-60" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd" /></svg>` : 
+                            '';
+
+                        li.innerHTML = `
+                            <input type="checkbox" id="${material.name.replace(/\s+/g, '-')}" 
+                                   class="custom-checkbox h-6 w-6 rounded-md border-gray-600 bg-gray-900/50 text-indigo-600 focus:ring-indigo-500 cursor-pointer flex-shrink-0" 
+                                   ${isChecked ? 'checked' : ''}>
+                            <label for="${material.name.replace(/\s+/g, '-')}" class="ml-4 flex-grow flex justify-between items-center cursor-pointer min-w-0">
+                                <span class="font-medium text-gray-200 truncate pr-2 flex items-center">${material.name}${infoIcon}</span>
+                                <span class="text-lg font-bold text-indigo-400">${material.quantity}</span>
+                            </label>
+                            ${tooltipHTML}
+                        `;
+                        
+                        const checkbox = li.querySelector('input[type="checkbox"]');
+                        
+                        const toggleCheck = () => {
+                            const materialName = li.dataset.name;
+                            if (checkbox.checked) {
+                                if (!checkedItems.includes(materialName)) checkedItems.push(materialName);
+                                li.classList.add('done');
+                            } else {
+                                checkedItems = checkedItems.filter(item => item !== materialName);
+                                li.classList.remove('done');
+                            }
+                            saveState();
+                            updateProgress();
+                        }
+
+                        li.addEventListener('click', (e) => {
+                            if (e.target !== checkbox) checkbox.checked = !checkbox.checked;
+                            toggleCheck();
+                        });
+
+                        checkbox.addEventListener('change', toggleCheck);
+
+                        materialList.appendChild(li);
+                    });
+                });
+                updateProgress();
+            }
+
+            resetButton.addEventListener('click', () => {
+                const originalText = 'Reset List';
+                let isConfirming = resetButton.dataset.confirming === 'true';
+
+                if (isConfirming) {
+                    checkedItems = [];
+                    saveState();
+                    renderList();
+                    resetButton.textContent = originalText;
+                    resetButton.classList.remove('bg-yellow-500', 'hover:bg-yellow-600');
+                    resetButton.classList.add('bg-red-600', 'hover:bg-red-700');
+                    resetButton.dataset.confirming = 'false';
+                } else {
+                    resetButton.textContent = 'Are you sure?';
+                    resetButton.classList.remove('bg-red-600', 'hover:bg-red-700');
+                    resetButton.classList.add('bg-yellow-500', 'hover:bg-yellow-600');
+                    resetButton.dataset.confirming = 'true';
+                    setTimeout(() => {
+                        if (resetButton.dataset.confirming === 'true') {
+                            resetButton.textContent = originalText;
+                            resetButton.classList.remove('bg-yellow-500', 'hover:bg-yellow-600');
+                            resetButton.classList.add('bg-red-600', 'hover:bg-red-700');
+                            resetButton.dataset.confirming = 'false';
+                        }
+                    }, 3000);
+                }
+            });
+
+            // Initial setup
+            loadState();
+            renderList();
+        });
+    </script>
+</body>
+</html>
