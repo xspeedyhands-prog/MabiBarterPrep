@@ -219,15 +219,70 @@
             const STORAGE_KEY = 'mabinogiBarteringList_v5';
             let checkedItems = [];
 
+            // Cookie utility functions
+            function setCookie(name, value, days = 365) {
+                const expires = new Date();
+                expires.setTime(expires.getTime() + (days * 24 * 60 * 60 * 1000));
+                document.cookie = `${name}=${encodeURIComponent(value)};expires=${expires.toUTCString()};path=/;SameSite=Lax`;
+            }
+
+            function getCookie(name) {
+                const nameEQ = name + "=";
+                const cookies = document.cookie.split(';');
+                for (let cookie of cookies) {
+                    cookie = cookie.trim();
+                    if (cookie.indexOf(nameEQ) === 0) {
+                        return decodeURIComponent(cookie.substring(nameEQ.length));
+                    }
+                }
+                return null;
+            }
+
+            function deleteCookie(name) {
+                document.cookie = `${name}=;expires=Thu, 01 Jan 1970 00:00:00 UTC;path=/;`;
+            }
+
             function saveState() {
-                localStorage.setItem(STORAGE_KEY, JSON.stringify({checkedItems}));
+                const stateData = JSON.stringify({checkedItems});
+                
+                // Save to cookies (primary storage)
+                setCookie(STORAGE_KEY, stateData, 365);
+                
+                // Also save to localStorage as fallback
+                try {
+                    localStorage.setItem(STORAGE_KEY, stateData);
+                } catch (e) {
+                    console.warn('localStorage not available, using cookies only');
+                }
             }
 
             function loadState() {
-                const savedState = localStorage.getItem(STORAGE_KEY);
+                let savedState = null;
+                
+                // Try to load from cookies first
+                savedState = getCookie(STORAGE_KEY);
+                
+                // If no cookie data, try localStorage as fallback
+                if (!savedState) {
+                    try {
+                        savedState = localStorage.getItem(STORAGE_KEY);
+                        // If we found data in localStorage, migrate it to cookies
+                        if (savedState) {
+                            setCookie(STORAGE_KEY, savedState, 365);
+                        }
+                    } catch (e) {
+                        console.warn('localStorage not available');
+                    }
+                }
+                
                 if (savedState) {
-                    const data = JSON.parse(savedState);
-                    checkedItems = data.checkedItems || [];
+                    try {
+                        const data = JSON.parse(savedState);
+                        checkedItems = data.checkedItems || [];
+                    } catch (e) {
+                        console.error('Error parsing saved state:', e);
+                        checkedItems = [];
+                    }
                 }
             }
             
@@ -355,7 +410,15 @@
 
                 if (isConfirming) {
                     checkedItems = [];
-                    saveState();
+                    
+                    // Clear both cookies and localStorage
+                    deleteCookie(STORAGE_KEY);
+                    try {
+                        localStorage.removeItem(STORAGE_KEY);
+                    } catch (e) {
+                        console.warn('localStorage not available');
+                    }
+                    
                     renderList();
                     resetButton.textContent = originalText;
                     resetButton.classList.remove('bg-yellow-500', 'hover:bg-yellow-600');
